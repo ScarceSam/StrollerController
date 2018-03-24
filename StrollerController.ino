@@ -149,19 +149,21 @@ void calibrateJoystick() {
 
 void readJoystick() {
   //read joystick by reading its raw value and maping it to 
-  //a 0-1023 range w/mid pont mapped to 512.
+  //a -100 to 100 range w/mid point mapped to 0. 
+  //x values: -100==FullLeft 100==FullRight
+  //y values: -100==FullBack 100==FullForward
   if(xValue >= xMid) {
-    xValue = map(xValue, xMid, xMax, 512, 1023);
+    xValue = map(xValue, xMid, xMax, 0, -100);
   }
   else if(xValue < xMid) {
-    xValue = map(xValue, xMin, xMid, 0, 512);
+    xValue = map(xValue, xMin, xMid, 100, 0);
   }
 
   if(yValue >= yMid) {
-    yValue = map(yValue, yMid, yMax, 512, 1023);
+    yValue = map(yValue, yMid, yMax, 0, -100);
   }
   else if(yValue < yMid) {
-    yValue = map(yValue, yMin, yMid, 0, 512);
+    yValue = map(yValue, yMin, yMid, 100, 0);
   }
   delay(2);
 }
