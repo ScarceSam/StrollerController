@@ -58,12 +58,12 @@ const uint8_t BUTTON_PINS[NUM_BUTTONS] = {CONTROL_BUTTON, TRIGGER, SIDE_BUTTON,
 
 //set needed variables
 //joystick variables
-int xMax = 0;
-int xMid = 0;
-int xMin = 0;
-int yMax = 0;
-int yMid = 0;
-int yMin = 0;
+int xMax = 512;
+int xMid = 512;
+int xMin = 512;
+int yMax = 512;
+int yMid = 512;
+int yMin = 512;
 int xValue = 0;
 int yValue = 0;
 
