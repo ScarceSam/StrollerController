@@ -1,0 +1,16 @@
+software:
+
+-Add START_DELAY for proper calibration of joystick at startup
+	include additional time needed for bootup
+-add ability to select diffrent sets of sounds
+-Add motor control
+-Add joystick math
+-Add max speed adjustment
+
+Hardware:
+
+-Solder SFX reset
+-Add pot to adjust max speed
+-Add switch to select sound set.
+
+
