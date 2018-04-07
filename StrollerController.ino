@@ -122,10 +122,16 @@ void loop() {
   yValue = analogRead(Y_PIN);
   calibrateJoystick();
   readJoystick();
+
+  //read button inputs if a sound has not been called for
   if(sound == 0) {
     readButtons();
   }
+
+  //play sound if one is queued up
+  if(sound != 0) {
   play();
+  }
 }
 
 
