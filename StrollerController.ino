@@ -1,4 +1,5 @@
-/* Stroller Controller V0.1 
+/***************************************************************************** 
+ *  Stroller Controller V0.1 
  *  Continuously calibrates and reads joystick
  *  Plays sounds T00-T03 when joystick buttons are pressed
  *  
@@ -7,8 +8,8 @@
  *  A1 - X Axis
  *  A2 - Y axis
  *  A3 - Volume (not used)
- *  A4 - 
- *  A5 - 
+ *  A4 - sound set shifting
+ *  A5 - Max speed adjustment
  *  D0 - Control box button
  *  D1 - Joystick Trigger button
  *  D2 - Joystick Side thumb button
@@ -16,19 +17,24 @@
  *  D4 - Joystick Thumb button
  *  D5 - MCU
  *  D6 - MCU
- *  D7 - Gear Shifting Servo (not used)
+ *  D7 - Soundboard Rst (temporarily connected to D5)
  *  D8 - LED#1
  *  D9 - LED#2
  *  D10 - Soundboard UG
  *  D11 - Soundboard RX
  *  D12 - SoundBoard TX
  *  D13 - LED#3
- */
+ *****************************************************************************/
+
 #include <Bounce2.h>
 #include <SoftwareSerial.h>
 #include <Adafruit_Soundboard.h>
 
-//set led pins
+/*******************
+ * set defines
+ *******************/
+ 
+//set led pins constants & array
 #define LED_PIN1 8
 #define LED_PIN2 9
 #define LED_PIN3 13
@@ -36,27 +42,30 @@
 //LED pins into an array for easy itteration
 const uint8_t LED_PINS[NUM_LEDS] = {LED_PIN1, LED_PIN2, LED_PIN3};
 
-//set button pins
+//set button constants & array
 #define CONTROL_BUTTON 0  
 #define TRIGGER 1         //plays sound T00
 #define SIDE_BUTTON 2     //plays sound T01
 #define PINKY_BUTTON 3    //plays sound T02
-#define THUMB_BUTTON 4 //plays sound T03
-#define NUM_BUTTONS 5//Button pins into an array for easy itteration
+#define THUMB_BUTTON 4    //plays sound T03
+#define NUM_BUTTONS 5     //Button pins into an array for easy itteration
 const uint8_t BUTTON_PINS[NUM_BUTTONS] = {CONTROL_BUTTON, TRIGGER, SIDE_BUTTON, 
                                           PINKY_BUTTON, THUMB_BUTTON};
 
-//set joystick inputs
+//set joystick constants
 #define X_PIN A1
 #define Y_PIN A2
 
-//set SFX board pins
+//set SFX board constants
 #define SFX_TX 12
 #define SFX_RX 11
 #define SFX_RST 5
 #define SFX_UG 10
 
-//set needed variables
+/*******************
+ * set needed variables
+ *******************/
+ 
 //joystick variables
 int xMax = 512;
 int xMid = 512;
@@ -74,16 +83,21 @@ int sound = 0;
 long long timestamp = 0;
 bool flashState = LOW;
 
-//variable for sound shifting
+//variable for sound set shifting
 int soundSet = 0;
 
+//
 Bounce * buttons = new Bounce[NUM_BUTTONS];
 
+//initiate Serial for sound board
 SoftwareSerial ssSfx = SoftwareSerial(SFX_TX, SFX_RX);
+
+//
 Adafruit_Soundboard sfx = Adafruit_Soundboard(&ssSfx, NULL, SFX_RST);
 
 void setup() {
-  //set joystick mid pint for future calibration.
+  
+  //set joystick mid pint for calibration.
   xMid = analogRead(X_PIN);
   yMid = analogRead(Y_PIN);
 
@@ -93,7 +107,7 @@ void setup() {
     buttons[i].interval(25);              // interval in ms
   }
 
-  //Set LEDs as inputs
+  //Set LEDs as outputs
   for (int i = 0; i < NUM_LEDS; i++) {
     pinMode(LED_PINS[i], OUTPUT);
     digitalWrite(LED_PINS[i], LOW);
@@ -112,15 +126,18 @@ void setup() {
     while (1);
   }
   digitalWrite(LED_PIN1, LOW);
-
-//  Serial.begin(9600);
 }
 
 void loop() {
 
+  //read raw joystick position
   xValue = analogRead(X_PIN);
   yValue = analogRead(Y_PIN);
+
+  //set the joystick's usable range
   calibrateJoystick();
+
+  //translate the joysticks values to usable numbers for the Motors
   readJoystick();
 
   //read button inputs if a sound has not been called for
@@ -136,8 +153,9 @@ void loop() {
 
 
 void calibrateJoystick() {
+  
   //calibrate joystick by tracking 
-  //the max and mid raw input readings.
+  //the max and min raw input readings.
   if(xValue > xMax) {
     xMax = xValue;
   }
@@ -154,10 +172,14 @@ void calibrateJoystick() {
 
 
 void readJoystick() {
-  //read joystick by reading its raw value and maping it to 
-  //a -100 to 100 range w/mid point mapped to 0. 
-  //x values: -100==FullLeft 100==FullRight
-  //y values: -100==FullBack 100==FullForward
+  /*********************
+   * 
+   * read joystick by reading its raw value and maping it to 
+   * a range of -100-100,  w/mid point mapped to 0. 
+   * x values: -100==FullLeft 100==FullRight
+   * y values: -100==FullBack 100==FullForward
+   * 
+   ********************/
   if(xValue >= xMid) {
     xValue = map(xValue, xMid, xMax, 0, -100);
   }
@@ -180,7 +202,8 @@ void readButtons() {
   for (int i = 0; i < NUM_BUTTONS; i++)  {
     // Update the Bounce instance :
     buttons[i].update();
-    // If it fell, flag the need to toggle the LED
+    
+    // If it fell, set button variable
     if ( buttons[i].fell() ) {
       sound = i + 1;
       break;
@@ -189,8 +212,10 @@ void readButtons() {
 }
 
 
-void flash(int LED, int pause) {
-  if ( millis() > timestamp + pause) {
+void flash(int LED, int pulse) {
+
+  //flash given LED with given pulse rate
+  if ( millis() > timestamp + pulse) {
     timestamp = millis();
     flashState = !flashState;
     digitalWrite( LED, flashState); 
@@ -199,6 +224,8 @@ void flash(int LED, int pause) {
 
 
 void play() {
+  
+  //try to play sound, if failed- reset SFXboard else reset sound variable
   if(!sfx.playTrack((uint8_t)sound)) {
     digitalWrite(SFX_RST, LOW);
     pinMode(SFX_RST, OUTPUT);
@@ -209,21 +236,3 @@ void play() {
     sound = 0;
   }
 }
-
-
-/*void printDebugInfo() {
-  
-  Serial.print("xMid= ");
-  Serial.print(xMid);
-  Serial.print(", yMid= ");
-  Serial.print(yMid);
-  Serial.print(", xAxis= ");
-  Serial.print(xValue);
-  Serial.print(", yAxis= ");
-  Serial.print(yValue);
-  Serial.print(", sound= ");
-  Serial.print(sound);  
-  Serial.print("\n");
-  
-}
-*/
