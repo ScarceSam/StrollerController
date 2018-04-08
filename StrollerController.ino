@@ -56,6 +56,7 @@ const uint8_t BUTTON_PINS[NUM_BUTTONS] = {CONTROL_BUTTON, TRIGGER, SIDE_BUTTON,
 #define X_PIN A1
 #define Y_PIN A2
 #define START_DELAY 1000
+#define BUFFER 25
 
 //set SFX board constants
 #define SFX_TX 12
@@ -183,12 +184,15 @@ void calibrateJoystick() {
   //the max and min raw input readings.
   if (xValue > xMax) {
     xMax = xValue;
-  }else if (xValue < xMin) {
+  }
+  else if (xValue < xMin) {
     xMin = xValue;
   }
+  
   if (yValue > yMax) {
     yMax = yValue;
-  }else if (yValue < yMin) {
+  }
+  else if (yValue < yMin) {
     yMin = yValue;
   }
 }
@@ -203,20 +207,25 @@ void readJoystick() {
    * y values: -100==FullBack 100==FullForward
    * 
    ********************/
-  if(xValue >= xMid) {
-    xValue = map(xValue, xMid, xMax, 0, -100);
+  if(xValue > xMid + BUFFER) {
+    xValue = map(xValue, xMid + BUFFER, xMax, 0, -100);
   }
-  else if(xValue < xMid) {
-    xValue = map(xValue, xMin, xMid, 100, 0);
+  else if(xValue < xMid - BUFFER) {
+    xValue = map(xValue, xMin, xMid - BUFFER, 100, 0);
+  }
+  else{
+    xValue = 0;
   }
 
-  if(yValue >= yMid) {
-    yValue = map(yValue, yMid, yMax, 0, -100);
+  if(yValue > yMid + BUFFER) {
+    yValue = map(yValue, yMid + BUFFER, yMax, 0, -100);
   }
-  else if(yValue < yMid) {
-    yValue = map(yValue, yMin, yMid, 100, 0);
+  else if(yValue < yMid - BUFFER) {
+    yValue = map(yValue, yMin, yMid - BUFFER, 100, 0);
   }
-  delay(2);
+  else{
+    yValue = 0;
+  }
 }
 
 
