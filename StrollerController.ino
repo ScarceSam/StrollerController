@@ -89,6 +89,14 @@ bool flashState = LOW;
 //variable for sound set shifting
 int soundSet = 0;
 
+//variables for motor control
+int rMotor = 0;
+int lMotor = 0;
+float rMax = 0.0;
+float rMin = 0.0;
+float lMax = 0.0;
+float lMin = 0.0;
+
 //
 Bounce * buttons = new Bounce[NUM_BUTTONS];
 
@@ -226,6 +234,52 @@ void readJoystick() {
   else{
     yValue = 0;
   }
+}
+
+void translateToMotors() {
+  /*********************
+   * 
+   * takes the x joystick value and finds 
+   * the range to map the y value to to get
+   * the individual motor speeds. then maps 
+   * the desired motor speed percentage to 
+   * the int needed by the motor controller.
+   * 
+   ********************/
+  if (xValue == 0) {
+  
+    rMotor = yValue;
+    lMotor = yValue;
+  
+  }else if (xValue > 0) {
+    
+    lMax = (0.00625*(xValue*xValue))+(0.875*xValue)+100;
+    lMin = floatMap((float)xValue, 0, 100, -100, -50);
+    lMotor = floatMap(yValue, -100, 100, lMin, lMax);
+
+    rMax = floatMap(xValue, 0, 100, 100, 50);
+    rMin = (-0.00625*(xValue*xValue))+(-0.875*xValue)-100;
+    rMotor = floatMap(yValue, -100, 100, rMin, rMax);
+  
+  }else if (xValue < 0) {
+        
+    lMax = floatMap(xValue, 0, -100, 100, 50);
+    lMin = (-0.00625*(xValue*xValue))+(0.875*xValue)-100;
+    lMotor = floatMap(yValue, -100, 100, lMin, lMax);
+
+    rMax = (0.00625*(xValue*xValue))+(-0.875*xValue)+100;
+    rMin = floatMap(xValue, 0, -100, -100, -50);
+    rMotor = floatMap(yValue, -100, 100, rMin, rMax);
+  }
+
+  lMotor = floatMap(constrain(lMotor, -100, 100), -100, 100, -127, 127);
+  rMotor = floatMap(constrain(rMotor, -100, 100), -100, 100, -127, 127);
+}
+
+
+float floatMap(float x, float in_min, float in_max, float out_min, float out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 
