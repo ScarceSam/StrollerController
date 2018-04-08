@@ -181,16 +181,14 @@ void calibrateJoystick() {
   
   //calibrate joystick by tracking 
   //the max and min raw input readings.
-  if(xValue > xMax) {
+  if (xValue > xMax) {
     xMax = xValue;
-  }
-  if(xValue < xMin) {
+  }else if (xValue < xMin) {
     xMin = xValue;
   }
-  if(yValue > yMax) {
+  if (yValue > yMax) {
     yMax = yValue;
-  }
-  if(yValue < yMin) {
+  }else if (yValue < yMin) {
     yMin = yValue;
   }
 }
