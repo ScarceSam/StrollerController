@@ -55,6 +55,7 @@ const uint8_t BUTTON_PINS[NUM_BUTTONS] = {CONTROL_BUTTON, TRIGGER, SIDE_BUTTON,
 //set joystick constants
 #define X_PIN A1
 #define Y_PIN A2
+#define START_DELAY 1000
 
 //set SFX board constants
 #define SFX_TX 12
@@ -75,12 +76,13 @@ int yMid = 512;
 int yMin = 512;
 int xValue = 0;
 int yValue = 0;
+unsigned long bootUpTime = 0;
 
 //variables for readButtons()
 int sound = 0;
 
 //needed variables for flash()
-long long timestamp = 0;
+unsigned long timestamp = 0;
 bool flashState = LOW;
 
 //variable for sound set shifting
@@ -126,6 +128,9 @@ void setup() {
     while (1);
   }
   digitalWrite(LED_PIN1, LOW);
+
+  //capture bootup time to add to start delay
+  bootUpTime = millis();
 }
 
 void loop() {
@@ -137,17 +142,37 @@ void loop() {
   //set the joystick's usable range
   calibrateJoystick();
 
-  //translate the joysticks values to usable numbers for the Motors
-  readJoystick();
+  //allow time for proper calibration befor going into operation
+  if (millis() < START_DELAY + bootUpTime) {
 
-  //read button inputs if a sound has not been called for
-  if(sound == 0) {
-    readButtons();
-  }
+    //flash LED2 while in initial calibration mode
+    flash(LED_PIN2, 50);
 
-  //play sound if one is queued up
-  if(sound != 0) {
-  play();
+    //if calibration has not been started extend calibration delay
+    if (xMax < 712 || xMin > 312 || yMax < 712 || yMin > 312) {
+
+      bootUpTime = millis();
+    }
+
+  }else if (millis() < START_DELAY + bootUpTime + 50) {
+    
+    //turn off LED2
+    digitalWrite(LED_PIN2, LOW);
+    
+  }else{
+    
+    //translate the joysticks values to usable numbers for the Motors
+    readJoystick();
+  
+    //read button inputs if a sound has not been called for
+    if(sound == 0) {
+      readButtons();
+    }
+  
+    //play sound if one is queued up
+    if(sound != 0) {
+    play();
+    }
   }
 }
 
