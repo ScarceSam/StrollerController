@@ -7,9 +7,9 @@
  *  A0 - Thumb Stick
  *  A1 - X Axis
  *  A2 - Y axis
- *  A3 - Volume (not used)
+ *  A3 - Max speed adjustment
  *  A4 - sound set shifting
- *  A5 - Max speed adjustment
+ *  A5 - Volume (not used)
  *  D0 - Control box button
  *  D1 - Joystick Trigger button
  *  D2 - Joystick Side thumb button
@@ -17,7 +17,7 @@
  *  D4 - Joystick Thumb button
  *  D5 - MCU
  *  D6 - MCU
- *  D7 - Soundboard Rst (temporarily connected to D5)
+ *  D7 - Soundboard Rst
  *  D8 - LED#1
  *  D9 - LED#2
  *  D10 - Soundboard UG
@@ -61,7 +61,7 @@ const uint8_t BUTTON_PINS[NUM_BUTTONS] = {CONTROL_BUTTON, TRIGGER, SIDE_BUTTON,
 //set SFX board constants
 #define SFX_TX 12
 #define SFX_RX 11
-#define SFX_RST 5
+#define SFX_RST 7
 #define SFX_UG 10
 
 /*******************
