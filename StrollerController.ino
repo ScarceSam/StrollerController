@@ -58,6 +58,9 @@ const uint8_t BUTTON_PINS[NUM_BUTTONS] = {CONTROL_BUTTON, TRIGGER, SIDE_BUTTON,
 #define START_DELAY 1000
 #define BUFFER 25
 
+//set max speed constant
+#define SPEED A3
+
 //set SFX board constants
 #define SFX_TX 12
 #define SFX_RX 11
@@ -279,8 +282,10 @@ void translateToMotors() {
     rMotor = floatMap(yValue, -100, 100, rMin, rMax);
   }
 
-  lMotor = floatMap(constrain(lMotor, -100, 100), -100, 100, -127, 127);
-  rMotor = floatMap(constrain(rMotor, -100, 100), -100, 100, -127, 127);
+  int maxSpeed = map(analogRead(SPEED), 0, 1023, 0, 127);
+
+  lMotor = floatMap(constrain(lMotor, -100, 100), -100, 100, -maxSpeed, maxSpeed);
+  rMotor = floatMap(constrain(rMotor, -100, 100), -100, 100, -maxSpeed, maxSpeed);
 }
 
 
