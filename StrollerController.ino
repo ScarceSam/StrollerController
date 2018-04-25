@@ -97,6 +97,9 @@ float rMin = 0.0;
 float lMax = 0.0;
 float lMin = 0.0;
 
+//variale to monitor loop speed
+bool loopFlash = 0;
+
 //
 Bounce * buttons = new Bounce[NUM_BUTTONS];
 
@@ -143,6 +146,10 @@ void setup() {
 }
 
 void loop() {
+
+  //Toggle LED at the beginning of loop to monitor for delays in system
+  loopFlash = !loopFlash;
+  digitalWrite(LED_PIN1, loopFlash);
 
   //read raw joystick position
   xValue = analogRead(X_PIN);
