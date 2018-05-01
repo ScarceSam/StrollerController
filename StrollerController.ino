@@ -66,6 +66,7 @@ const uint8_t BUTTON_PINS[NUM_BUTTONS] = {CONTROL_BUTTON, TRIGGER, SIDE_BUTTON,
 #define SFX_RX 11
 #define SFX_RST 7
 #define SFX_UG 10
+#define SFX_ACT 19
 
 /*******************
  * set needed variables
@@ -131,8 +132,11 @@ void setup() {
   }
 
   //Set sound board to UART controll
-  pinMode( SFX_UG, OUTPUT);
-  digitalWrite( SFX_UG, LOW);
+  pinMode(SFX_UG, OUTPUT);
+  digitalWrite(SFX_UG, LOW);
+
+  //set input to monitor soundboard activity
+  pinMode(SFX_ACT, INPUT_PULLUP);
 
   //start serial communication with Sound board
   ssSfx.begin(9600);
@@ -183,8 +187,8 @@ void loop() {
     //translate the joysticks values to usable numbers for the Motors
     readJoystick();
   
-    //read button inputs if a sound has not been called for
-    if(sound == 0) {
+    //read button inputs if a sound has not been called for and a sound isnt palying
+    if(sound == 0 && digitalRead(SFX_ACT) == 1) {
       readButtons();
     }
   
