@@ -9,14 +9,14 @@
  *  A2 - Y axis
  *  A3 - Max speed adjustment
  *  A4 - sound set shifting
- *  A5 - Volume (not used)
+ *  A5 - SFX_ACT
  *  D0 - Control box button
  *  D1 - Joystick Trigger button
  *  D2 - Joystick Side thumb button
  *  D3 - Joystick Pinky button
  *  D4 - Joystick Thumb button
  *  D5 - MCU
- *  D6 - MCU
+ *  D6 - Fan
  *  D7 - Soundboard Rst
  *  D8 - LED#1
  *  D9 - LED#2
@@ -310,7 +310,7 @@ void readButtons() {
     
     // If it fell, set button variable
     if ( buttons[i].fell() ) {
-      sound = i + 1;
+      sound = i + 4 * map(analogRead(A4), 0, 1023, 2, 0);
       requestTime = millis();
       break;
     }
@@ -338,6 +338,7 @@ void play() {
     delay(10);
     pinMode(SFX_RST, INPUT);
     resetTime = millis(); 
+    sound = 0;
   }else{
     sound = 0;
   }
