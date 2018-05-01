@@ -186,8 +186,9 @@ void loop() {
     
   }else{
     
-    //translate the joysticks values to usable numbers for the Motors
+    //read & translate the joysticks values to usable numbers for the Motors
     readJoystick();
+    translateToMotors();
   
     //read button inputs if a sound has not been called for and a sound isnt palying
     if(sound == 0 && millis() > requestTime + 500 && digitalRead(SFX_ACT) == 1) {
