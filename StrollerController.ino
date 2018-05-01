@@ -85,12 +85,14 @@ unsigned long bootUpTime = 0;
 
 //variables for readButtons()
 int sound = 0;
+unsigned long requestTime = 0;
 
 //needed variables for flash()
 unsigned long timestamp = 0;
 bool flashState = LOW;
 
 //variable for sound set shifting
+unsigned long resetTime = 0;
 int soundSet = 0;
 
 //variables for motor control
@@ -188,12 +190,12 @@ void loop() {
     readJoystick();
   
     //read button inputs if a sound has not been called for and a sound isnt palying
-    if(sound == 0 && digitalRead(SFX_ACT) == 1) {
+    if(sound == 0 && millis() > requestTime + 500 && digitalRead(SFX_ACT) == 1) {
       readButtons();
     }
   
     //play sound if one is queued up
-    if(sound != 0) {
+    if(sound != 0 && millis() > resetTime + 1000) {
     play();
     }
   }
@@ -308,6 +310,7 @@ void readButtons() {
     // If it fell, set button variable
     if ( buttons[i].fell() ) {
       sound = i + 1;
+      requestTime = millis();
       break;
     }
   }
@@ -333,7 +336,7 @@ void play() {
     pinMode(SFX_RST, OUTPUT);
     delay(10);
     pinMode(SFX_RST, INPUT);
-    delay(10); 
+    resetTime = millis(); 
   }else{
     sound = 0;
   }
