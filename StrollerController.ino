@@ -61,6 +61,9 @@ const uint8_t BUTTON_PINS[NUM_BUTTONS] = {CONTROL_BUTTON, TRIGGER, SIDE_BUTTON,
 //set max speed constant
 #define SPEED A3
 
+//set fan constant
+#define FAN 6
+
 //set SFX board constants
 #define SFX_TX 12
 #define SFX_RX 11
@@ -293,6 +296,12 @@ void translateToMotors() {
 
   lMotor = floatMap(constrain(lMotor, -100, 100), -100, 100, -maxSpeed, maxSpeed);
   rMotor = floatMap(constrain(rMotor, -100, 100), -100, 100, -maxSpeed, maxSpeed);
+
+  int fanSpeed = map((abs(lMotor) + abs(rMotor)), 0, 254, 45, 50);
+  if (fanSpeed < 50){
+    fanSpeed = 0;
+  }
+  analogWrite(FAN, fanSpeed);
 }
 
 
