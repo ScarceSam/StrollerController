@@ -191,7 +191,7 @@ void loop() {
     
     //read & translate the joysticks values to usable numbers for the Motors
     readJoystick();
-    translateToMotors();
+    maths();
   
     //read button inputs if a sound has not been called for and a sound isnt palying
     if(sound == 0 && millis() > requestTime + 500 && digitalRead(SFX_ACT) == 1) {
@@ -256,7 +256,7 @@ void readJoystick() {
   }
 }
 
-void translateToMotors() {
+void maths() {
   /*********************
    * 
    * takes the x joystick value and finds 
@@ -292,12 +292,12 @@ void translateToMotors() {
     rMotor = floatMap(yValue, -100, 100, rMin, rMax);
   }
 
-  int maxSpeed = map(analogRead(SPEED), 0, 1023, 0, 127);
+  int maxSpeed = map(analogRead(SPEED), 0, 1023, 0, 100);
 
-  lMotor = floatMap(constrain(lMotor, -100, 100), -100, 100, -maxSpeed, maxSpeed);
-  rMotor = floatMap(constrain(rMotor, -100, 100), -100, 100, -maxSpeed, maxSpeed);
-
-  int fanSpeed = map((abs(lMotor) + abs(rMotor)), 0, 254, 45, 50);
+  lMotor = constrain(lMotor, -maxSpeed, maxSpeed);
+  rMotor = constrain(rMotor, -maxSpeed, maxSpeed);
+  
+  int fanSpeed = map((abs(lMotor) + abs(rMotor)), 0, 200, 45, 50);
   if (fanSpeed < 50){
     fanSpeed = 0;
   }
