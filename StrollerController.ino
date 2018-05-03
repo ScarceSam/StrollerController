@@ -292,10 +292,12 @@ void maths() {
     rMotor = floatMap(yValue, -100, 100, rMin, rMax);
   }
 
+  //restricts the output range based on the position of the speed potentiometer
   int maxSpeed = map(analogRead(SPEED), 0, 1023, 0, 100);
 
-  lMotor = constrain(lMotor, -maxSpeed, maxSpeed);
-  rMotor = constrain(rMotor, -maxSpeed, maxSpeed);
+  //limit the speed value then convert it to the selected max range
+  lMotor = map(constrain(lMotor, -100, 100), -100, 100, -maxSpeed, maxSpeed);
+  rMotor = map(constrain(rMotor, -100, 100), -100, 100, -maxSpeed, maxSpeed);
   
   int fanSpeed = map((abs(lMotor) + abs(rMotor)), 0, 200, 45, 50);
   if (fanSpeed < 50){
