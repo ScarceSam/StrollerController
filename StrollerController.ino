@@ -29,6 +29,7 @@
 #include <Bounce2.h>
 #include <SoftwareSerial.h>
 #include <Adafruit_Soundboard.h>
+#include <SyRenSimplified.h>
 
 /*******************
  * set defines
@@ -63,6 +64,8 @@ const uint8_t BUTTON_PINS[NUM_BUTTONS] = {CONTROL_BUTTON, TRIGGER, SIDE_BUTTON,
 
 //set fan constant
 #define FAN 6
+
+#define MCU 5
 
 //set SFX board constants
 #define SFX_TX 12
@@ -114,9 +117,10 @@ Bounce * buttons = new Bounce[NUM_BUTTONS];
 
 //initiate Serial for sound board
 SoftwareSerial ssSfx = SoftwareSerial(SFX_TX, SFX_RX);
-
-//
 Adafruit_Soundboard sfx = Adafruit_Soundboard(&ssSfx, NULL, SFX_RST);
+
+SoftwareSerial ssSaber = SoftwareSerial(NOT_A_PIN, MCU);
+SyRenSimplified SR(ssSaber);
 
 void setup() {
   
@@ -144,6 +148,7 @@ void setup() {
   pinMode(SFX_ACT, INPUT_PULLUP);
 
   //start serial communication with Sound board
+  ssSaber.begin(9600);
   ssSfx.begin(9600);
 
   //Flash LED1 untill soundbaord is connected
@@ -192,6 +197,7 @@ void loop() {
     //read & translate the joysticks values to usable numbers for the Motors
     readJoystick();
     maths();
+    drive();
   
     //read button inputs if a sound has not been called for and a sound isnt palying
     if(sound == 0 && millis() > requestTime + 500 && digitalRead(SFX_ACT) == 1) {
@@ -304,6 +310,13 @@ void maths() {
     fanSpeed = 0;
   }
   analogWrite(FAN, fanSpeed);
+}
+
+
+void drive() {
+
+  SR.motor(map(lMotor, -100, 100, 0, 127));
+  SR.motor(map(rMotor, -100, 100, 0, -127));
 }
 
 
