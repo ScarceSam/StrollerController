@@ -67,6 +67,8 @@ const uint8_t BUTTON_PINS[NUM_BUTTONS] = {CONTROL_BUTTON, TRIGGER, SIDE_BUTTON,
 
 #define MCU 5
 
+#define RAMP 0
+
 //set SFX board constants
 #define SFX_TX 12
 #define SFX_RX 11
@@ -149,6 +151,11 @@ void setup() {
 
   //start serial communication with Sound board
   ssSaber.begin(9600);
+
+  //set motors to stop incase they powered down in motion
+  SR.motor(64);
+  SR.motor(-64);
+  
   ssSfx.begin(9600);
 
   //Flash LED1 untill soundbaord is connected
@@ -236,7 +243,7 @@ void readJoystick() {
   /*********************
    * 
    * read joystick by reading its raw value and maping it to 
-   * a range of -100-100,  w/mid point mapped to 0. 
+   * a range of -100 to 100,  w/mid point mapped to 0. 
    * x values: -100==FullLeft 100==FullRight
    * y values: -100==FullBack 100==FullForward
    * 
@@ -315,8 +322,43 @@ void maths() {
 
 void drive() {
 
-  SR.motor(map(lMotor, -100, 100, 0, 127));
-  SR.motor(map(rMotor, -100, 100, 0, -127));
+  static int targetLeft;
+  static int currentLeft;
+  static int targetRight;
+  static int currentRight;
+  static unsigned long lastChange = 0;
+
+  targetLeft = lMotor;
+  targetRight = rMotor;
+
+  if ( millis() > lastChange + RAMP) 
+  {
+    if ( targetLeft > currentLeft )
+    {
+      currentLeft++;
+      SR.motor(map(currentLeft, -100, 100, 0, -127));
+    }
+    else if ( targetLeft < currentLeft )
+    {
+      currentLeft--;
+      SR.motor(map(currentLeft, -100, 100, 0, -127));
+    }
+    
+    if ( targetRight > currentRight )
+    {
+      currentRight++;
+      SR.motor(map(currentRight, -100, 100, 0, 127));
+    }
+    else if ( targetRight < currentRight )
+    {
+      currentRight--;
+      SR.motor(map(currentRight, -100, 100, 0, 127));
+    }
+    lastChange = millis();
+  }  
+    
+  //SR.motor(map(lMotor, -100, 100, 0, 127));
+  //SR.motor(map(rMotor, -100, 100, 0, -127));
 }
 
 
