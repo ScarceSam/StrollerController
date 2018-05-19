@@ -67,7 +67,7 @@ const uint8_t BUTTON_PINS[NUM_BUTTONS] = {CONTROL_BUTTON, TRIGGER, SIDE_BUTTON,
 
 #define MCU 5
 
-#define RAMP 0
+#define RAMP 20
 
 //set SFX board constants
 #define SFX_TX 12
@@ -327,10 +327,99 @@ void drive() {
   static int targetRight;
   static int currentRight;
   static unsigned long lastChange = 0;
+  static unsigned long lastChangeLeft = 0;
+  static unsigned long lastChangeRight = 0;
 
   targetLeft = lMotor;
   targetRight = rMotor;
 
+  if ( currentLeft == 0 )
+  {
+    if ( targetLeft < currentLeft )
+    {
+      currentLeft--;
+      SR.motor(map(currentLeft, -100, 100, 0, -127));
+    }
+    if ( targetLeft > currentLeft ) 
+    {
+      currentLeft++;
+      SR.motor(map(currentLeft, -100, 100, 0, -127));
+    }
+  }
+  else if ( currentLeft > 0 )
+  {
+    if ( targetLeft < currentLeft )
+    {
+      currentLeft--;
+      SR.motor(map(currentLeft, -100, 100, 0, -127));
+    }
+    if ( targetLeft > currentLeft && millis() > lastChangeLeft + RAMP ) 
+    {
+      currentLeft++;
+      SR.motor(map(currentLeft, -100, 100, 0, -127));
+      lastChangeLeft = millis();
+    }
+  }
+  else if ( currentLeft < 0 )
+  {
+    if ( targetLeft < currentLeft && millis() > lastChangeLeft + RAMP )
+    {
+      currentLeft--;
+      SR.motor(map(currentLeft, -100, 100, 0, -127));
+      lastChangeLeft = millis();
+    }
+    if ( targetLeft > currentLeft ) 
+    {
+      currentLeft++;
+      SR.motor(map(currentLeft, -100, 100, 0, -127));
+    }
+  }
+
+
+  if ( currentRight == 0 )
+  {
+    if ( targetRight < currentRight )
+    {
+      currentRight--;
+      SR.motor(map(currentRight, -100, 100, 0, 127));
+    }
+    if ( targetRight > currentRight ) 
+    {
+      currentRight++;
+      SR.motor(map(currentRight, -100, 100, 0, 127));
+    }
+  }
+  else if ( currentRight > 0 )
+  {
+    if ( targetRight < currentRight )
+    {
+      currentRight--;
+      SR.motor(map(currentRight, -100, 100, 0, 127));
+    }
+    if ( targetRight > currentRight && millis() > lastChangeRight + RAMP ) 
+    {
+      currentRight++;
+      SR.motor(map(currentRight, -100, 100, 0, 127));
+      lastChangeRight = millis();
+    }
+  }
+  else if ( currentRight < 0 )
+  {
+    if ( targetRight < currentRight && millis() > lastChangeRight + RAMP )
+    {
+      currentRight--;
+      SR.motor(map(currentRight, -100, 100, 0, 127));
+      lastChangeRight = millis();
+    }
+    if ( targetRight > currentRight ) 
+    {
+      currentRight++;
+      SR.motor(map(currentRight, -100, 100, 0, 127));
+    }
+  }
+
+/*
+  
   if ( millis() > lastChange + RAMP) 
   {
     if ( targetLeft > currentLeft )
@@ -356,7 +445,7 @@ void drive() {
     }
     lastChange = millis();
   }  
-    
+*/  
   //SR.motor(map(lMotor, -100, 100, 0, 127));
   //SR.motor(map(rMotor, -100, 100, 0, -127));
 }
