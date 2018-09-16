@@ -1,6 +1,7 @@
 /***************************************************************************** 
- *  Stroller Controller V0.1 
+ *  Stroller Controller V1.0 - MakerFaire Version
  *  Continuously calibrates and reads joystick
+ *  Outputs motor speed info to motor controller 
  *  Plays sounds T00-T03 when joystick buttons are pressed
  *  
  *  Arduino PinOut
