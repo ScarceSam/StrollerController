@@ -3,6 +3,3 @@ software:
 -add ability to select diffrent sets of sounds
 -Add motor control
 -Add max speed adjustment
-
-
-
